@@ -6,7 +6,7 @@ put melons in a shopping cart.
 Authors: Joel Burton, Christian Fernandez, Meggie Mahnken, Katie Byers.
 """
 
-from flask import Flask, render_template, redirect, flash
+from flask import Flask, render_template, redirect, flash, session
 import jinja2
 
 import melons
@@ -61,11 +61,21 @@ def show_shopping_cart():
     """Display content of shopping cart."""
 
     # TODO: Display the contents of the shopping cart.
-
+    order = 0
     # The logic here will be something like:
-    #
+    cart_melons = []
     # - get the cart dictionary from the session
+    cart_dict = session.get("cart")
     # - create a list to hold melon objects and a variable to hold the total
+    for melon_id in cart_dict:
+        quanity = cart_dict[melon_id]
+        melon = melons.get_by_id(melon_id)
+        price = melon.price
+        total_price = price * quanity
+        order += total_price
+        melon.quanity = quanity
+        melon.total_cost = total_price
+        cart_melons.append(melon)
     #   cost of the order
     # - loop over the cart dictionary, and for each melon id:
     #    - get the corresponding Melon object
@@ -78,7 +88,7 @@ def show_shopping_cart():
     # Make sure your function can also handle the case wherein no cart has
     # been added to the session
 
-    return render_template("cart.html")
+    return render_template("cart.html", order, cart_melons) 
 
 
 @app.route("/add_to_cart/<melon_id>")
@@ -92,8 +102,8 @@ def add_to_cart(melon_id):
     # TODO: Finish shopping cart functionality
 
     # The logic here should be something like:
-    #
-    # - check if a "cart" exists in the session, and create one (an empty
+    # - check if a "cart" exists in the session, and create one (an empty        
+
     #   dictionary keyed to the string "cart") if not
     # - check if the desired melon id is the cart, and if not, put it in
     # - increment the count for that melon id by 1
